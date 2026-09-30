@@ -1,0 +1,1 @@
+# vizinhanca (4/8/16) e geometria das arestas

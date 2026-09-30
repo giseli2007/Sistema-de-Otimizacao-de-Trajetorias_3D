@@ -1,0 +1,1 @@
+# bilinear e bicubica de Hermite

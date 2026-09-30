@@ -1,0 +1,1 @@
+# algortimo que vai testar todas as rotas e retornar a mais curta

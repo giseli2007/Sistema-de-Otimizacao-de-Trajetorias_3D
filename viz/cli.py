@@ -1,0 +1,1 @@
+# entrada: terreno, inicio, fim, parametros -> rota + metricas

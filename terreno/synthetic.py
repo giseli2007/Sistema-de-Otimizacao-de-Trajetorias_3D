@@ -1,0 +1,1 @@
+# # Plano, sela, gaussianas, senoides (derivadas analiticas)

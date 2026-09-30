@@ -1,0 +1,1 @@
+# custo de aresta + checagem de restricoes

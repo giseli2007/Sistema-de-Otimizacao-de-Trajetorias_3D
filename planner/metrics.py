@@ -1,0 +1,1 @@
+# comprimento 3D, energia J, inclinacao maxima, nos expandidos

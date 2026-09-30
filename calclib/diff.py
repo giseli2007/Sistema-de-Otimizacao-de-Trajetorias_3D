@@ -1,0 +1,1 @@
+# Gradiente, Hessiana, derivada direcional, normal, inclinacao

@@ -1,0 +1,1 @@
+# trapezio, integral de linha, regra de Simpson

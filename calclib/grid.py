@@ -1,0 +1,1 @@
+#(armazenamento + indice), única diferença de storage

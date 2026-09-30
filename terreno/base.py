@@ -1,0 +1,1 @@
+# Interface do terreno: height, grad, hessian, bounds
