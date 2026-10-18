@@ -1,1 +1,6 @@
-# algortimo de busca A*
+"""A*.
+
+Busca de menor custo com heurística.
+
+Status: esqueleto (sem implementação).
+"""

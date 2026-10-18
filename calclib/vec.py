@@ -1,2 +1,6 @@
-#soma, escalar, ponto, cross, norma
-#vec2/Vec3
+"""Vetores.
+
+Operações vetoriais 2D/3D: norma, produto escalar, ângulos.
+
+Status: esqueleto (sem implementação).
+"""

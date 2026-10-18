@@ -1,0 +1,3 @@
+// Cliente do backend: o único lugar do web/ que faz fetch para /api/...
+// Status: esqueleto (sem implementação).
+export {};

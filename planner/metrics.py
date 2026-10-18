@@ -1,1 +1,6 @@
-# comprimento 3D, energia J, inclinacao maxima, nos expandidos
+"""Métricas da rota.
+
+Distância, ganho/perda de altitude, declividade máxima e custo total.
+
+Status: esqueleto (sem implementação).
+"""

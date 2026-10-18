@@ -1,1 +1,6 @@
-# vizinhanca (4/8/16) e geometria das arestas
+"""Grafo de navegação.
+
+Constrói o grafo a partir do terreno (e das vias, quando houver).
+
+Status: esqueleto (sem implementação).
+"""

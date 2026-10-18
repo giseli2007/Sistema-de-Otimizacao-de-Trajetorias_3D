@@ -1,0 +1,10 @@
+[project]
+name = "trajetoria-3d"
+version = "0.1.0"
+description = "Otimização de trajetória 3D com restrições topográficas"
+requires-python = ">=3.10"
+# dependências (numpy etc.) entram aqui quando o código do núcleo existir
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

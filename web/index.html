@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mapa de relevo 3D</title>
+  <link rel="stylesheet" href="lib/maplibre-gl.css">
+  <link rel="stylesheet" href="css/style.css">
+  <!-- MapLibre (copiado em lib/) vira a variável global "maplibregl", usada pelos módulos em js/ -->
+  <script>
+    // Mostra erros de JavaScript/carregamento na própria página (sem precisar abrir o console)
+    function mostrarErro(t) {
+      let d = document.getElementById('erro');
+      if (!d) { d = document.createElement('div'); d.id = 'erro'; (document.body || document.documentElement).append(d); }
+      d.textContent += t + '\n';
+    }
+    addEventListener('error', e => mostrarErro(e.target && (e.target.src || e.target.href)
+      ? 'Não carregou: ' + (e.target.src || e.target.href) : e.message), true);
+    addEventListener('unhandledrejection', e => mostrarErro(String(e.reason)));
+  </script>
+  <script src="lib/maplibre-gl.js"></script>
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+  <div class="panel">
+    <h1>Mapa de relevo</h1>
+    <p class="dica">Incline o mapa para ver em 3D (botão direito + arrastar, ou Ctrl + arrastar; no celular, dois dedos). Sem inclinação, o mapa fica plano.</p>
+    <label>Mapa base <select id="base"></select></label>
+    <label>Relevo (DEM) <select id="dem"></select></label>
+    <label class="check"><input type="checkbox" id="hs" checked> Relevo sombreado</label>
+    <label>
+      <span>Exagero do relevo <output id="exv">1,0×</output></span>
+      <input type="range" id="ex" min="1" max="3" step="0.1" value="1">
+    </label>
+    <div class="area">
+      <button id="sel">Selecionar área</button>
+      <button id="tudo" disabled>Mostrar mapa completo</button>
+      <p id="info"></p>
+    </div>
+  </div>
+  <div class="hud" id="hud" aria-hidden="true"></div>
+  <div id="map"></div>
+</body>
+</html>

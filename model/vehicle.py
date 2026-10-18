@@ -1,1 +1,6 @@
-# m, g, μ, θ_max, θ_lat
+"""Veículo.
+
+Parâmetros do veículo: declividade máxima, raio mínimo, velocidade, consumo.
+
+Status: esqueleto (sem implementação).
+"""

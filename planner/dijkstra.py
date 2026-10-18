@@ -1,1 +1,6 @@
-# algortimo que vai testar todas as rotas e retornar a mais curta
+"""Dijkstra.
+
+Busca de menor custo sem heurística (referência para comparar com o A*).
+
+Status: esqueleto (sem implementação).
+"""
