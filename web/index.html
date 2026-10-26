@@ -22,6 +22,8 @@
   <script type="module" src="js/main.js"></script>
 </head>
 <body>
+
+ 
   <div class="panel">
     <h1>Mapa de relevo</h1>
     <p class="dica">Incline o mapa para ver em 3D (botão direito + arrastar, ou Ctrl + arrastar; no celular, dois dedos). Sem inclinação, o mapa fica plano.</p>
@@ -38,7 +40,38 @@
       <p id="info"></p>
     </div>
   </div>
-  <div class="hud" id="hud" aria-hidden="true"></div>
+  <div class="hud" id="hud" aria-hidden="true">
+  </div>
   <div id="map"></div>
+
+  <div class="panelTrajetoria">
+    <h1>Planejamento de Trajetória</h1>
+
+    <div class="campo">
+      <label for="pontoInicial">Ponto Inicial</label>
+      <input type="text" id="pontoInicial" placeholder="EX.: -8.7619, -63.9039">
+    </div>
+    <div class="campo">
+      <label for="pontoFinal">Ponto de Destino</label>
+      <input type="text" id="pontoFinal" placeholder="EX.: -8.7619, -63.9039">
+    </div>
+    <div class="campo">
+      <label for="algoritmo">Algoritmo de Busca</label>
+      <select id="algoritmo">
+        <option value="dijkstra">Dijkstra</option>
+        <option value="a-star">A*</option>
+      </select>
+    </div>
+    <button type="button" id="calcularTrajetoria" class="calcularTrajetoria">Calcular</button>
+    <section id="resultadosTrajetoria" class="resultadosTrajetoria">
+  <h2>Resultados da trajetória</h2>
+
+  <p>Comprimento: <strong id="comprimentoTrajetoria">—</strong></p>
+  <p>Inclinação máxima: <strong id="inclinacaoMaxima">—</strong></p>
+  <p>Energia estimada: <strong id="energiaEstimada">—</strong></p>
+  <p>Nós expandidos: <strong id="nosExpandidos">—</strong></p>
+
+</section>
+  </div>
 </body>
 </html>
