@@ -1,77 +1,221 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Mapa de relevo 3D</title>
+
+  <title>Mapa de Relevo 3D</title>
+
+  <!-- Estilos -->
   <link rel="stylesheet" href="lib/maplibre-gl.css">
   <link rel="stylesheet" href="css/style.css">
-  <!-- MapLibre (copiado em lib/) vira a variável global "maplibregl", usada pelos módulos em js/ -->
+
+  <!-- Exibição de erros na própria página -->
   <script>
-    // Mostra erros de JavaScript/carregamento na própria página (sem precisar abrir o console)
-    function mostrarErro(t) {
-      let d = document.getElementById('erro');
-      if (!d) { d = document.createElement('div'); d.id = 'erro'; (document.body || document.documentElement).append(d); }
-      d.textContent += t + '\n';
+    function mostrarErro(texto) {
+      let elemento = document.getElementById("erro");
+
+      if (!elemento) {
+        elemento = document.createElement("div");
+        elemento.id = "erro";
+        document.body.appendChild(elemento);
+      }
+
+      elemento.textContent += texto + "\n";
     }
-    addEventListener('error', e => mostrarErro(e.target && (e.target.src || e.target.href)
-      ? 'Não carregou: ' + (e.target.src || e.target.href) : e.message), true);
-    addEventListener('unhandledrejection', e => mostrarErro(String(e.reason)));
+
+    window.addEventListener("error", (evento) => {
+      const origem = evento.target?.src || evento.target?.href;
+
+      mostrarErro(
+        origem
+          ? "Não foi possível carregar: " + origem
+          : evento.message
+      );
+    }, true);
+
+    window.addEventListener("unhandledrejection", (evento) => {
+      mostrarErro(String(evento.reason));
+    });
   </script>
+
+  <!-- Biblioteca MapLibre -->
   <script src="lib/maplibre-gl.js"></script>
+
+  <!-- JavaScript principal -->
   <script type="module" src="js/main.js"></script>
 </head>
+
 <body>
 
- 
-  <div class="panel">
-    <h1>Mapa de relevo</h1>
-    <p class="dica">Incline o mapa para ver em 3D (botão direito + arrastar, ou Ctrl + arrastar; no celular, dois dedos). Sem inclinação, o mapa fica plano.</p>
-    <label>Mapa base <select id="base"></select></label>
-    <label>Relevo (DEM) <select id="dem"></select></label>
-    <label class="check"><input type="checkbox" id="hs" checked> Relevo sombreado</label>
-    <label>
-      <span>Exagero do relevo <output id="exv">1,0×</output></span>
-      <input type="range" id="ex" min="1" max="3" step="0.1" value="1">
-    </label>
-    <div class="area">
-      <button id="sel">Selecionar área</button>
-      <button id="tudo" disabled>Mostrar mapa completo</button>
-      <p id="info"></p>
-    </div>
-  </div>
-  <div class="hud" id="hud" aria-hidden="true">
-  </div>
-  <div id="map"></div>
+  <!-- Cabeçalho -->
+  <header class="topo">
+    <img
+      src="img/logo-sistema3dRelevo.png"
+      alt="Logo do Sistema 3D Relevo"
+      class="logo"
+    >
+    <h1 class="titulo">Mapa de Relevo 3D</h1>
+  </header>
 
-  <div class="panelTrajetoria">
-    <h1>Planejamento de Trajetória</h1>
+  <main>
 
-    <div class="campo">
-      <label for="pontoInicial">Ponto Inicial</label>
-      <input type="text" id="pontoInicial" placeholder="EX.: -8.7619, -63.9039">
-    </div>
-    <div class="campo">
-      <label for="pontoFinal">Ponto de Destino</label>
-      <input type="text" id="pontoFinal" placeholder="EX.: -8.7619, -63.9039">
-    </div>
-    <div class="campo">
-      <label for="algoritmo">Algoritmo de Busca</label>
-      <select id="algoritmo">
-        <option value="dijkstra">Dijkstra</option>
-        <option value="a-star">A*</option>
-      </select>
-    </div>
-    <button type="button" id="calcularTrajetoria" class="calcularTrajetoria">Calcular</button>
-    <section id="resultadosTrajetoria" class="resultadosTrajetoria">
-  <h2>Resultados da trajetória</h2>
+    <!-- Painel de configuração do mapa -->
+    <section class="panel" aria-labelledby="tituloMapa">
 
-  <p>Comprimento: <strong id="comprimentoTrajetoria">—</strong></p>
-  <p>Inclinação máxima: <strong id="inclinacaoMaxima">—</strong></p>
-  <p>Energia estimada: <strong id="energiaEstimada">—</strong></p>
-  <p>Nós expandidos: <strong id="nosExpandidos">—</strong></p>
+      <h1 id="tituloMapa">Mapa de relevo</h1>
 
-</section>
-  </div>
+      <p class="dica">
+        Incline o mapa para visualizar o relevo em 3D.
+        Utilize o botão direito do mouse e arraste ou pressione
+        Ctrl e arraste. No celular, utilize dois dedos.
+        Sem inclinação, o mapa permanece plano.
+      </p>
+
+      <div class="campo">
+        <label for="base">Mapa base</label>
+        <select id="base"></select>
+      </div>
+
+      <div class="campo">
+        <label for="dem">Relevo (DEM)</label>
+        <select id="dem"></select>
+      </div>
+
+      <div class="campo">
+        <label class="check" for="hs">
+          <input type="checkbox" id="hs" checked>
+          Relevo sombreado
+        </label>
+      </div>
+
+      <div class="campo">
+        <label for="ex">
+          Exagero do relevo
+          <output id="exv" for="ex">1,0×</output>
+        </label>
+
+        <input
+          type="range"
+          id="ex"
+          min="1"
+          max="3"
+          step="0.1"
+          value="1"
+        >
+      </div>
+
+      <div class="area">
+        <button type="button" id="sel">
+          Selecionar área
+        </button>
+
+        <button type="button" id="tudo" disabled>
+          Mostrar mapa completo
+        </button>
+
+        <p id="info" role="status"></p>
+      </div>
+
+    </section>
+
+    <!-- Controles sobre o mapa -->
+    <div class="hud" id="hud" aria-hidden="true"></div>
+
+    <!-- Mapa -->
+    <div id="map" aria-label="Mapa interativo de relevo"></div>
+
+    <!-- Painel de planejamento da trajetória -->
+    <section
+      class="panelTrajetoria"
+      aria-labelledby="tituloTrajetoria"
+    >
+
+      <h2 id="tituloTrajetoria">Planejamento de Trajetória</h2>
+
+      <!-- Ponto inicial -->
+      <div class="campo">
+        <label for="pontoInicial">Ponto inicial</label>
+
+        <input
+          type="text"
+          id="pontoInicial"
+          placeholder="Ex.: -8.7619, -63.9039"
+          autocomplete="off"
+        >
+      </div>
+
+      <!-- Ponto de destino -->
+      <div class="campo">
+        <label for="pontoFinal">Ponto de destino</label>
+
+        <input
+          type="text"
+          id="pontoFinal"
+          placeholder="Ex.: -8.7619, -63.9039"
+          autocomplete="off"
+        >
+      </div>
+
+      <!-- Algoritmo de busca -->
+      <div class="campo">
+        <label for="algoritmo">Algoritmo de busca</label>
+
+        <select id="algoritmo">
+          <option value="dijkstra">Dijkstra</option>
+          <option value="a-star">A*</option>
+        </select>
+      </div>
+
+      <!-- Botão para calcular a trajetória -->
+      <button
+        type="button"
+        id="calcularTrajetoria"
+        class="calcularTrajetoria"
+      >
+        Calcular trajetória
+      </button>
+
+      <!-- Resultados -->
+      <section
+        id="resultadosTrajetoria"
+        class="resultadosTrajetoria"
+        aria-labelledby="tituloResultados"
+      >
+
+        <h3 id="tituloResultados">Resultados da trajetória</h3>
+
+        <p>
+          Comprimento:
+          <strong id="comprimentoTrajetoria">—</strong>
+        </p>
+
+        <p>
+          Inclinação máxima:
+          <strong id="inclinacaoMaxima">—</strong>
+        </p>
+
+        <p>
+          Energia estimada:
+          <strong id="energiaEstimada">—</strong>
+        </p>
+
+        <p>
+          Nós expandidos:
+          <strong id="nosExpandidos">—</strong>
+        </p>
+
+        <p id="statusTrajetoria" role="status" aria-live="polite">
+          Informe os pontos inicial e final para planejar a trajetória.
+        </p>
+
+      </section>
+
+    </section>
+
+  </main>
+ <script type="module" src="js/trajetoria.js"></script>
 </body>
 </html>

@@ -6,6 +6,7 @@ import { iniciarControles } from './controls.js';
 import { iniciarHud } from './hud.js';
 import { iniciarArea } from './area.js';
 
+
 const map = new maplibregl.Map({
   container: 'map',
   style: criarEstilo(),
