@@ -12,6 +12,10 @@
   <link rel="stylesheet" href="lib/maplibre-gl.css">
   <link rel="stylesheet" href="css/style.css">
 
+   <!-- Biblioteca MapLibre -->
+  <script src="lib/maplibre-gl.js"></script>
+
+
   <!-- Exibição de erros na própria página -->
   <script>
     function mostrarErro(texto) {
@@ -41,181 +45,248 @@
     });
   </script>
 
-  <!-- Biblioteca MapLibre -->
-  <script src="lib/maplibre-gl.js"></script>
-
-  <!-- JavaScript principal -->
-  <script type="module" src="js/main.js"></script>
+ 
 </head>
 
 <body>
 
   <!-- Cabeçalho -->
   <header class="topo">
-    <img
-      src="img/logo-sistema3dRelevo.png"
-      alt="Logo do Sistema 3D Relevo"
-      class="logo"
-    >
-    <h1 class="titulo">Mapa de Relevo 3D</h1>
+
+    <div class="identidade">
+      <img
+        src="img/logo-sistema3dRelevo.png"
+        alt="Sistema 3D Relevo"
+        class="logo"
+      >
+
+      <span>3D RELEVO</span>
+    </div>
+
+    <div class="acoesTopo">
+      <span class="indicador">Sistema de visualização 3D</span>
+      <button class="iconeBotao" id="configuracoes" title="Configurações">
+        ⚙
+      </button>
+    </div>
+
   </header>
 
-  <main>
+  <!-- Mapa principal -->
+  <main id="map"></main>
 
-    <!-- Painel de configuração do mapa -->
-    <section class="panel" aria-labelledby="tituloMapa">
+  <!-- Barra lateral de ferramentas -->
+  <aside class="barraFerramentas">
 
-      <h1 id="tituloMapa">Mapa de relevo</h1>
+    <button
+      class="ferramenta ativa"
+      id="iniciarPlanejamento"
+      title="Planejar trajetória"
+      aria-label="Planejar trajetória"
+    >
+      <span>⌁</span>
+    </button>
 
-      <p class="dica">
-        Incline o mapa para visualizar o relevo em 3D.
-        Utilize o botão direito do mouse e arraste ou pressione
-        Ctrl e arraste. No celular, utilize dois dedos.
-        Sem inclinação, o mapa permanece plano.
-      </p>
+    <button
+      class="ferramenta"
+      id="camadas"
+      title="Camadas do mapa"
+      aria-label="Camadas do mapa"
+    >
+      <span>▱</span>
+    </button>
 
-      <div class="campo">
-        <label for="base">Mapa base</label>
-        <select id="base"></select>
-      </div>
+    <button
+      class="ferramenta"
+      id="controleRelevo"
+      title="Configurações do relevo"
+      aria-label="Configurações do relevo"
+    >
+      <span>⛰</span>
+    </button>
 
-      <div class="campo">
-        <label for="dem">Relevo (DEM)</label>
-        <select id="dem"></select>
-      </div>
+    <button
+      class="ferramenta"
+      id="limparTrajetoria"
+      title="Limpar seleção"
+      aria-label="Limpar seleção"
+    >
+      <span>⌫</span>
+    </button>
 
-      <div class="campo">
-        <label class="check" for="hs">
-          <input type="checkbox" id="hs" checked>
-          Relevo sombreado
-        </label>
-      </div>
+  </aside>
 
-      <div class="campo">
-        <label for="ex">
-          Exagero do relevo
-          <output id="exv" for="ex">1,0×</output>
-        </label>
+  <!-- Menu de camadas -->
+  <section class="menuFlutuante" id="menuCamadas">
 
-        <input
-          type="range"
-          id="ex"
-          min="1"
-          max="3"
-          step="0.1"
-          value="1"
-        >
-      </div>
+    <div class="menuTitulo">
+      <h2>Camadas do mapa</h2>
+      <button class="fecharMenu" data-fechar="menuCamadas">×</button>
+    </div>
 
-      <div class="area">
-        <button type="button" id="sel">
-          Selecionar área
-        </button>
+    <label for="base">Mapa base</label>
+    <select id="base"></select>
 
-        <button type="button" id="tudo" disabled>
-          Mostrar mapa completo
-        </button>
+    <label for="dem">Modelo de elevação (DEM)</label>
+    <select id="dem"></select>
 
-        <p id="info" role="status"></p>
-      </div>
+  </section>
 
-    </section>
+  <!-- Menu de relevo -->
+  <section class="menuFlutuante" id="menuRelevo">
 
-    <!-- Controles sobre o mapa -->
-    <div class="hud" id="hud" aria-hidden="true"></div>
+    <div class="menuTitulo">
+      <h2>Configurações do relevo</h2>
+      <button class="fecharMenu" data-fechar="menuRelevo">×</button>
+    </div>
 
-    <!-- Mapa -->
-    <div id="map" aria-label="Mapa interativo de relevo"></div>
+    <label class="opcaoCheck">
+      <input type="checkbox" id="hs" checked>
+      Relevo sombreado
+    </label>
 
-    <!-- Painel de planejamento da trajetória -->
-    <section
-      class="panelTrajetoria"
-      aria-labelledby="tituloTrajetoria"
+    <label for="ex">
+      Exagero do relevo
+      <output id="exv">1,0×</output>
+    </label>
+
+    <input
+      type="range"
+      id="ex"
+      min="1"
+      max="3"
+      step="0.1"
+      value="1"
     >
 
-      <h2 id="tituloTrajetoria">Planejamento de Trajetória</h2>
+  </section>
 
-      <!-- Ponto inicial -->
-      <div class="campo">
-        <label for="pontoInicial">Ponto inicial</label>
+  <!-- Painel de planejamento -->
+  <section class="painelPlanejamento" id="painelPlanejamento">
 
-        <input
-          type="text"
-          id="pontoInicial"
-          placeholder="Ex.: -8.7619, -63.9039"
-          autocomplete="off"
-        >
+    <div class="menuTitulo">
+      <h2>Planejamento de trajetória</h2>
+      <button class="fecharMenu" id="fecharPlanejamento">×</button>
+    </div>
+
+    <p class="instrucao" id="instrucaoSelecao">
+      Selecione dois pontos no mapa para calcular uma trajetória.
+    </p>
+
+    <div class="pontosSelecionados">
+
+      <div class="ponto">
+        <span class="marcador origem"></span>
+
+        <div>
+          <strong>Origem</strong>
+          <small id="coordenadaInicial">Aguardando seleção</small>
+        </div>
       </div>
 
-      <!-- Ponto de destino -->
-      <div class="campo">
-        <label for="pontoFinal">Ponto de destino</label>
+      <div class="linhaPontos"></div>
 
-        <input
-          type="text"
-          id="pontoFinal"
-          placeholder="Ex.: -8.7619, -63.9039"
-          autocomplete="off"
-        >
+      <div class="ponto">
+        <span class="marcador destino"></span>
+
+        <div>
+          <strong>Destino</strong>
+          <small id="coordenadaFinal">Aguardando seleção</small>
+        </div>
       </div>
 
-      <!-- Algoritmo de busca -->
-      <div class="campo">
-        <label for="algoritmo">Algoritmo de busca</label>
+    </div>
 
-        <select id="algoritmo">
-          <option value="dijkstra">Dijkstra</option>
-          <option value="a-star">A*</option>
-        </select>
+    <div class="campo">
+      <label for="algoritmo">Algoritmo de busca</label>
+
+      <select id="algoritmo">
+        <option value="dijkstra">Dijkstra</option>
+        <option value="a-star">A*</option>
+      </select>
+    </div>
+
+    <button
+      type="button"
+      id="calcularTrajetoria"
+      class="botaoCalcular"
+      disabled
+    >
+      Calcular trajetória
+    </button>
+
+    <p id="statusTrajetoria" role="status" aria-live="polite">
+      Aguardando seleção dos pontos.
+    </p>
+
+  </section>
+
+  <!-- Cartão de resultados -->
+  <section class="cartaoResultados" id="resultadosTrajetoria">
+
+    <div class="menuTitulo">
+      <div>
+        <span class="subtitulo">ANÁLISE DO PERCURSO</span>
+        <h2>Resultados da trajetória</h2>
       </div>
 
-      <!-- Botão para calcular a trajetória -->
       <button
-        type="button"
-        id="calcularTrajetoria"
-        class="calcularTrajetoria"
+        class="fecharMenu"
+        id="minimizarResultados"
+        title="Minimizar resultados"
       >
-        Calcular trajetória
+        −
       </button>
+    </div>
 
-      <!-- Resultados -->
-      <section
-        id="resultadosTrajetoria"
-        class="resultadosTrajetoria"
-        aria-labelledby="tituloResultados"
-      >
+    <div class="resultadosGrid">
 
-        <h3 id="tituloResultados">Resultados da trajetória</h3>
+      <div class="resultadoItem">
+        <span>Comprimento</span>
+        <strong id="comprimentoTrajetoria">—</strong>
+      </div>
 
-        <p>
-          Comprimento:
-          <strong id="comprimentoTrajetoria">—</strong>
-        </p>
+      <div class="resultadoItem">
+        <span>Inclinação máxima</span>
+        <strong id="inclinacaoMaxima">—</strong>
+      </div>
 
-        <p>
-          Inclinação máxima:
-          <strong id="inclinacaoMaxima">—</strong>
-        </p>
+      <div class="resultadoItem">
+        <span>Energia estimada</span>
+        <strong id="energiaEstimada">—</strong>
+      </div>
 
-        <p>
-          Energia estimada:
-          <strong id="energiaEstimada">—</strong>
-        </p>
+      <div class="resultadoItem">
+        <span>Nós expandidos</span>
+        <strong id="nosExpandidos">—</strong>
+      </div>
 
-        <p>
-          Nós expandidos:
-          <strong id="nosExpandidos">—</strong>
-        </p>
+    </div>
 
-        <p id="statusTrajetoria" role="status" aria-live="polite">
-          Informe os pontos inicial e final para planejar a trajetória.
-        </p>
+  </section>
 
-      </section>
+  <!-- Controles auxiliares do mapa -->
+  <div class="hud" id="hud" aria-hidden="true"></div>
 
-    </section>
+  <div class="area">
+    <button type="button" id="sel">Selecionar área</button>
+    <button type="button" id="tudo" disabled>Mostrar mapa completo</button>
+    <p id="info"></p>
+  </div>
 
-  </main>
- <script type="module" src="js/trajetoria.js"></script>
+  <!-- Campos de compatibilidade com a primeira versão do JS.
+       Serão substituídos pela seleção direta no mapa na próxima etapa. -->
+  <div hidden>
+    <input type="text" id="pontoInicial">
+    <input type="text" id="pontoFinal">
+  </div>
+
+  <!-- Mensagens de erro -->
+  <div id="erro" role="alert"></div>
+
+  <!-- JavaScript de interação -->
+  
+  <script type="module" src="./js/main.js"></script>
+
 </body>
 </html>

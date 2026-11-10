@@ -5,7 +5,7 @@ import { criarTerreno } from './terrain.js';
 import { iniciarControles } from './controls.js';
 import { iniciarHud } from './hud.js';
 import { iniciarArea } from './area.js';
-
+import { iniciarTrajetoria } from './trajetoria.js';
 
 const map = new maplibregl.Map({
   container: 'map',
@@ -25,3 +25,4 @@ const terreno = criarTerreno(map);
 iniciarControles(map, terreno);
 iniciarHud(map, terreno, document.getElementById('hud'));
 iniciarArea(map, terreno);
+iniciarTrajetoria(map);

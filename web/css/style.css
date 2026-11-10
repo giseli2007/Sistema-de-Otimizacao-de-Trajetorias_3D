@@ -1,28 +1,30 @@
 
+/* =================================
+   VARIÁVEIS E TEMA
+================================= */
+
 :root {
-  --bg: #f6f7f4;
-  --fg: #1d2a24;
-  --muted: #5d6b64;
-  --line: #d2d9d4;
-  --accent: #2f6b4f;
-  --accent-fg: #fff;
-  --canvas: #e9eeeb;
+  --bg: #151c19;
+  --panel: #202a25;
+  --panel-hover: #2b3831;
+  --fg: #edf3ef;
+  --muted: #9baaa1;
+  --line: #35433b;
+  --accent: #65ad82;
+  --accent-hover: #4d946b;
+  --blue: #3979e8;
+  --origin: #65c995;
+  --destination: #f0a34e;
 }
 
-/* Tema escuro */
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #1b221f;
-    --fg: #e8eeea;
-    --muted: #9aa8a1;
-    --line: #344039;
-    --accent: #6fbf98;
-    --accent-fg: #0f1a14;
-    --canvas: #000;
-  }
+/* =================================
+   CONFIGURAÇÕES GERAIS
+================================= */
+
+* {
+  box-sizing: border-box;
 }
 
-/* Configurações gerais */
 html,
 body {
   width: 100%;
@@ -31,324 +33,528 @@ body {
 }
 
 body {
-  font: 14px/1.4 system-ui, sans-serif;
+  overflow: hidden;
+  font-family: system-ui, sans-serif;
+  font-size: 14px;
   color: var(--fg);
-  background: var(--canvas);
+  background: var(--bg);
 }
 
-/* Mapa */
+/* =================================
+   MAPA
+================================= */
+
 #map {
   position: absolute;
   inset: 0;
-  z-index: 1.5;
-}
-.titulo{
-  color: var(--fg);
-   font-size: 20px;
-  line-height: 1.3;
+  z-index: 0;
   
+
 }
-/* Cabeçalho */
+
+/* =================================
+   CABEÇALHO
+================================= */
+
 .topo {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
-  height: 50px;
-  padding: 0 20px;
-  box-sizing: border-box;
+  height: 55px;
 
   display: flex;
   align-items: center;
+  justify-content: space-between;
 
-  background: #1b221f;
+  padding: 0 20px;
+
+  background: rgba(21, 28, 25, 0.96);
   border-bottom: 1px solid var(--line);
+
   z-index: 20;
 }
 
+.identidade {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
 .logo {
-  height: 40px;
+  height: 38px;
   width: auto;
   object-fit: contain;
 }
 
-/* Painéis */
-.panel,
-.panelTrajetoria,
-.hud {
-  position: absolute;
-  background: var(--bg);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  box-sizing: border-box;
-}
-
-/* Painel de configuração do mapa */
-.panel {
-  top: 60px;
-  left: 10px;
-  width: 260px;
-  padding: 16px;
-  margin: 0;
-  display: grid;
-  gap: 12px;
-  z-index: 5;
-}
-
-.panel h1 {
-  margin: 0;
-  font-size: 20px;
-  line-height: 1.3;
-}
-
-.dica {
-  margin: 0;
-  font-size: 12px;
-  color: var(--muted);
-}
-
-/* Painel de planejamento de trajetória */
-.panelTrajetoria {
-  top: 60px;
-  right: 10px;
-  width: 260px;
-  padding: 14px;
-  display: grid;
-  gap: 5px;
-  z-index: 1;
-}
-
-.panelTrajetoria h2 {
-  margin: 0 0 4px;
-  font-size: 17px;
-  line-height: 1.3;
-}
-
-/* Campos */
-.panelTrajetoria .campo {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  min-width: 0;
-}
-
-.panelTrajetoria label {
-  font-size: 12px;
-  line-height: 1.4;
-  color: var(--muted);
-}
-
-/* Coordenadas e algoritmo */
-.panelTrajetoria input[type="text"],
-.panelTrajetoria select {
-  width: 100%;
-  min-width: 0;
-  padding: 8px;
-  box-sizing: border-box;
-
-  background: #10243a;
-  color: #fff;
-  border: 1px solid #34516f;
-  border-radius: 5px;
-
-  font: inherit;
-  font-size: 12px;
-}
-
-.panelTrajetoria input[type="text"]::placeholder {
-  color: #b6c5d5;
-}
-
-.panelTrajetoria select {
-  cursor: pointer;
-}
-
-/* Botão calcular */
-.panelTrajetoria .calcularTrajetoria {
-  width: 100%;
-  padding: 9px;
-  box-sizing: border-box;
-
-  background: #1663e8;
-  color: #fff;
-  border: none;
-  border-radius: 5px;
-
-  font: inherit;
-  font-size: 13px;
-  font-weight: 600;
-
-  cursor: pointer;
-  transition: background-color 0.2s ease;
-}
-
-.panelTrajetoria .calcularTrajetoria:hover {
-  background: #084fc9;
-}
-
-.panelTrajetoria .calcularTrajetoria:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* Resultados da trajetória */
-.resultadosTrajetoria {
-  min-width: 0;
-  margin-top: 2px;
-  padding-top: 10px;
-  border-top: 1px solid var(--line);
-}
-
-.resultadosTrajetoria h3 {
-  margin: 0 0 8px;
-  font-size: 15px;
-  line-height: 1.3;
-}
-
-.resultadosTrajetoria p {
-  margin: 7px 0;
-  font-size: 12px;
-  line-height: 1.4;
-  overflow-wrap: anywhere;
-}
-
-.resultadosTrajetoria strong {
-  color: var(--fg);
-}
-
-#statusTrajetoria {
-  margin-top: 10px;
-  color: var(--muted);
-  line-height: 1.5;
-}
-
-/* Elementos do painel de configuração */
-.panel label {
-  display: grid;
-  gap: 6px;
-  color: var(--muted);
-}
-
-.panel label.check {
+.acoesTopo {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 15px;
+}
+
+.indicador {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.iconeBotao {
+  width: 36px;
+  height: 36px;
+
+  background: var(--panel);
+  color: var(--fg);
+
+  border: 1px solid var(--line);
+  border-radius: 8px;
+
+  cursor: pointer;
+  font-size: 19px;
+}
+
+/* =================================
+   BARRA DE FERRAMENTAS
+================================= */
+
+.barraFerramentas {
+  position: absolute;
+  top: 75px;
+  left: 15px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+
+  padding: 8px;
+
+  background: rgba(21, 28, 25, 0.96);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+
+  z-index: 20;
+}
+
+.ferramenta {
+  width: 42px;
+  height: 42px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: transparent;
+  color: var(--muted);
+
+  border: none;
+  border-radius: 8px;
+
+  font-size: 23px;
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.ferramenta:hover {
+  background: var(--panel-hover);
   color: var(--fg);
 }
 
-.panel label span {
+.ferramenta.ativa {
+  background: var(--accent);
+  color: #102018;
+}
+
+/* =================================
+   MENUS FLUTUANTES
+================================= */
+
+.menuFlutuante,
+.painelPlanejamento,
+.cartaoResultados {
+  position: absolute;
+
+  background: rgba(32, 42, 37, 0.98);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+
+  color: var(--fg);
+  z-index: 15;
+}
+
+.menuFlutuante {
+  display: none;
+  top: 75px;
+  left: 75px;
+
+  width: 260px;
+  padding: 16px;
+  gap: 12px;
+}
+
+.menuFlutuante.aberto {
+  display: grid;
+}
+
+.menuTitulo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.menuTitulo h2 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.fecharMenu {
+  width: 28px;
+  height: 28px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: transparent;
+  color: var(--muted);
+
+  border: none;
+  border-radius: 6px;
+
+  font-size: 21px;
+  cursor: pointer;
+}
+
+.fecharMenu:hover {
+  background: var(--panel-hover);
+  color: var(--fg);
+}
+
+/* =================================
+   CAMPOS
+================================= */
+
+label {
   display: flex;
   justify-content: space-between;
   gap: 8px;
+
+  color: var(--muted);
+  font-size: 12px;
 }
 
-.panel select,
-.panel input[type="range"] {
+select {
   width: 100%;
-  box-sizing: border-box;
+  padding: 9px;
+
+  background: #17221c;
+  color: var(--fg);
+
+  border: 1px solid var(--line);
+  border-radius: 7px;
+
   font: inherit;
 }
 
-.panel select {
-  padding: 6px;
-  color: var(--fg);
-  background: var(--bg);
-  border: 1px solid var(--line);
-  border-radius: 6px;
-}
-
-.panel input[type="range"] {
+input[type="range"] {
+  width: 100%;
   accent-color: var(--accent);
 }
 
-input:disabled,
-select:disabled {
-  opacity: 0.45;
+.opcaoCheck {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 9px;
 }
 
-/* Seleção de área */
-.area {
+/* =================================
+   PAINEL DE PLANEJAMENTO
+================================= */
+
+.painelPlanejamento {
+  display: none;
+
+  top: 75px;
+  right: 15px;
+
+  width: 300px;
+  padding: 16px;
+}
+
+.painelPlanejamento.aberto {
   display: grid;
-  gap: 8px;
+  gap: 15px;
 }
 
-.area button {
-  padding: 8px;
-  font: inherit;
-  color: var(--fg);
-  background: transparent;
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.area button:disabled {
-  opacity: 0.45;
-  cursor: default;
-}
-
-#info {
+.instrucao {
   margin: 0;
-  font-size: 12px;
+
   color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
 }
 
-/* Informações do mapa */
-.hud {
-  left: 12px;
-  bottom: 12px;
-  padding: 6px 10px;
+/* Pontos de origem e destino */
+
+.pontosSelecionados {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.ponto {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ponto div {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ponto strong {
   font-size: 13px;
+}
+
+.ponto small {
   color: var(--muted);
-  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+}
+
+.marcador {
+  width: 11px;
+  height: 11px;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+.origem {
+  background: var(--origin);
+}
+
+.destino {
+  background: var(--destination);
+}
+
+.linhaPontos {
+  width: 2px;
+  height: 13px;
+  margin-left: 4px;
+  background: var(--line);
+}
+
+/* Botão de cálculo */
+
+.botaoCalcular {
+  width: 100%;
+  padding: 11px;
+
+  background: var(--blue);
+  color: white;
+
+  border: none;
+  border-radius: 7px;
+
+  font: inherit;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.botaoCalcular:hover:not(:disabled) {
+  background: #2863c7;
+}
+
+.botaoCalcular:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+#statusTrajetoria {
+  margin: 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* =================================
+   CARTÃO DE RESULTADOS
+================================= */
+
+.cartaoResultados {
+  display: none;
+
+  right: 15px;
+  bottom: 20px;
+
+  width: 340px;
+  padding: 16px;
+}
+
+.cartaoResultados.visivel {
+  display: block;
+}
+
+.subtitulo {
+  display: block;
+  margin-bottom: 5px;
+
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.resultadosGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+
+  margin-top: 18px;
+}
+
+.resultadoItem {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-width: 0;
+}
+
+.resultadoItem span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.resultadoItem strong {
+  font-size: 15px;
+  overflow-wrap: anywhere;
+}
+
+/* =================================
+   HUD E ÁREA
+================================= */
+
+.hud {
+  position: absolute;
+  bottom: 15px;
+  left: 15px;
+
+  color: var(--muted);
+  font-size: 12px;
+
   z-index: 5;
 }
 
-/* Foco por teclado */
-:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+.area {
+  display: none;
 }
 
-/* Mensagens de erro */
-#erro {
-  position: fixed;
-  top: 60px;
-  right: 12px;
-  max-width: min(440px, calc(100vw - 24px));
-  padding: 10px 12px;
-  box-sizing: border-box;
+/* =================================
+   ERROS
+================================= */
 
-  background: #7a1d1d;
-  color: #fff;
+#erro:not(:empty) {
+  position: fixed;
+  top: 65px;
+  right: 15px;
+
+  max-width: 400px;
+  padding: 12px;
+
+  background: #812b2b;
+  color: white;
+
   border-radius: 8px;
 
-  font-size: 13px;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 
   z-index: 100;
 }
 
-/* Telas pequenas */
+/* =================================
+   ACESSIBILIDADE
+================================= */
+
+button:focus-visible,
+select:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* =================================
+   RESPONSIVIDADE
+================================= */
+
 @media (max-width: 600px) {
-  .panel {
-    top: 60px;
-    left: 8px;
-    width: 220px;
-    padding: 12px;
+
+  .topo {
+    padding: 0 12px;
   }
 
-  .panelTrajetoria {
+  .indicador {
+    display: none;
+  }
+
+  .barraFerramentas {
+    top: 65px;
+    left: 8px;
+  }
+
+  .ferramenta {
+    width: 38px;
+    height: 38px;
+  }
+
+  .painelPlanejamento {
     top: auto;
     right: 8px;
-    bottom: 8px;
-    width: 230px;
-    max-height: 65vh;
-    overflow-y: auto;
-    padding: 12px;
-    
+    bottom: 12px;
+
+    width: min(290px, calc(100vw - 65px));
+  }
+
+  .cartaoResultados {
+    right: 8px;
+    bottom: 12px;
+
+    width: min(290px, calc(100vw - 65px));
+  }
+
+  .menuFlutuante {
+    left: 65px;
+    width: min(260px, calc(100vw - 80px));
   }
 }
 
+/* Marcadores dos pontos da trajetória */
+.marcadorTrajetoria {
+  width: 18px;
+  height: 18px;
+  border: 3px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
 
+.marcadorInicial {
+  background-color: #65c995;
+}
+
+.marcadorFinal {
+  background-color: #f0a34e;
+}
+/* Cartão de resultados minimizado */
+.cartaoResultados.minimizado .resultadosGrid {
+  display: none;
+}
