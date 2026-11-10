@@ -1,44 +1,292 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
-  <meta charset="utf-8">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Mapa de relevo 3D</title>
+
+  <title>Mapa de Relevo 3D</title>
+
+  <!-- Estilos -->
   <link rel="stylesheet" href="lib/maplibre-gl.css">
   <link rel="stylesheet" href="css/style.css">
-  <!-- MapLibre (copiado em lib/) vira a variável global "maplibregl", usada pelos módulos em js/ -->
-  <script>
-    // Mostra erros de JavaScript/carregamento na própria página (sem precisar abrir o console)
-    function mostrarErro(t) {
-      let d = document.getElementById('erro');
-      if (!d) { d = document.createElement('div'); d.id = 'erro'; (document.body || document.documentElement).append(d); }
-      d.textContent += t + '\n';
-    }
-    addEventListener('error', e => mostrarErro(e.target && (e.target.src || e.target.href)
-      ? 'Não carregou: ' + (e.target.src || e.target.href) : e.message), true);
-    addEventListener('unhandledrejection', e => mostrarErro(String(e.reason)));
-  </script>
+
+   <!-- Biblioteca MapLibre -->
   <script src="lib/maplibre-gl.js"></script>
-  <script type="module" src="js/main.js"></script>
+
+
+  <!-- Exibição de erros na própria página -->
+  <script>
+    function mostrarErro(texto) {
+      let elemento = document.getElementById("erro");
+
+      if (!elemento) {
+        elemento = document.createElement("div");
+        elemento.id = "erro";
+        document.body.appendChild(elemento);
+      }
+
+      elemento.textContent += texto + "\n";
+    }
+
+    window.addEventListener("error", (evento) => {
+      const origem = evento.target?.src || evento.target?.href;
+
+      mostrarErro(
+        origem
+          ? "Não foi possível carregar: " + origem
+          : evento.message
+      );
+    }, true);
+
+    window.addEventListener("unhandledrejection", (evento) => {
+      mostrarErro(String(evento.reason));
+    });
+  </script>
+
+ 
 </head>
+
 <body>
-  <div class="panel">
-    <h1>Mapa de relevo</h1>
-    <p class="dica">Incline o mapa para ver em 3D (botão direito + arrastar, ou Ctrl + arrastar; no celular, dois dedos). Sem inclinação, o mapa fica plano.</p>
-    <label>Mapa base <select id="base"></select></label>
-    <label>Relevo (DEM) <select id="dem"></select></label>
-    <label class="check"><input type="checkbox" id="hs" checked> Relevo sombreado</label>
-    <label>
-      <span>Exagero do relevo <output id="exv">1,0×</output></span>
-      <input type="range" id="ex" min="1" max="3" step="0.1" value="1">
-    </label>
-    <div class="area">
-      <button id="sel">Selecionar área</button>
-      <button id="tudo" disabled>Mostrar mapa completo</button>
-      <p id="info"></p>
+
+  <!-- Cabeçalho -->
+  <header class="topo">
+
+    <div class="identidade">
+      <img
+        src="img/logo-sistema3dRelevo.png"
+        alt="Sistema 3D Relevo"
+        class="logo"
+      >
+
+      <span>3D RELEVO</span>
     </div>
-  </div>
+
+    <div class="acoesTopo">
+      <span class="indicador">Sistema de visualização 3D</span>
+      <button class="iconeBotao" id="configuracoes" title="Configurações">
+        ⚙
+      </button>
+    </div>
+
+  </header>
+
+  <!-- Mapa principal -->
+  <main id="map"></main>
+
+  <!-- Barra lateral de ferramentas -->
+  <aside class="barraFerramentas">
+
+    <button
+      class="ferramenta ativa"
+      id="iniciarPlanejamento"
+      title="Planejar trajetória"
+      aria-label="Planejar trajetória"
+    >
+      <span>⌁</span>
+    </button>
+
+    <button
+      class="ferramenta"
+      id="camadas"
+      title="Camadas do mapa"
+      aria-label="Camadas do mapa"
+    >
+      <span>▱</span>
+    </button>
+
+    <button
+      class="ferramenta"
+      id="controleRelevo"
+      title="Configurações do relevo"
+      aria-label="Configurações do relevo"
+    >
+      <span>⛰</span>
+    </button>
+
+    <button
+      class="ferramenta"
+      id="limparTrajetoria"
+      title="Limpar seleção"
+      aria-label="Limpar seleção"
+    >
+      <span>⌫</span>
+    </button>
+
+  </aside>
+
+  <!-- Menu de camadas -->
+  <section class="menuFlutuante" id="menuCamadas">
+
+    <div class="menuTitulo">
+      <h2>Camadas do mapa</h2>
+      <button class="fecharMenu" data-fechar="menuCamadas">×</button>
+    </div>
+
+    <label for="base">Mapa base</label>
+    <select id="base"></select>
+
+    <label for="dem">Modelo de elevação (DEM)</label>
+    <select id="dem"></select>
+
+  </section>
+
+  <!-- Menu de relevo -->
+  <section class="menuFlutuante" id="menuRelevo">
+
+    <div class="menuTitulo">
+      <h2>Configurações do relevo</h2>
+      <button class="fecharMenu" data-fechar="menuRelevo">×</button>
+    </div>
+
+    <label class="opcaoCheck">
+      <input type="checkbox" id="hs" checked>
+      Relevo sombreado
+    </label>
+
+    <label for="ex">
+      Exagero do relevo
+      <output id="exv">1,0×</output>
+    </label>
+
+    <input
+      type="range"
+      id="ex"
+      min="1"
+      max="3"
+      step="0.1"
+      value="1"
+    >
+
+  </section>
+
+  <!-- Painel de planejamento -->
+  <section class="painelPlanejamento" id="painelPlanejamento">
+
+    <div class="menuTitulo">
+      <h2>Planejamento de trajetória</h2>
+      <button class="fecharMenu" id="fecharPlanejamento">×</button>
+    </div>
+
+    <p class="instrucao" id="instrucaoSelecao">
+      Selecione dois pontos no mapa para calcular uma trajetória.
+    </p>
+
+    <div class="pontosSelecionados">
+
+      <div class="ponto">
+        <span class="marcador origem"></span>
+
+        <div>
+          <strong>Origem</strong>
+          <small id="coordenadaInicial">Aguardando seleção</small>
+        </div>
+      </div>
+
+      <div class="linhaPontos"></div>
+
+      <div class="ponto">
+        <span class="marcador destino"></span>
+
+        <div>
+          <strong>Destino</strong>
+          <small id="coordenadaFinal">Aguardando seleção</small>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="campo">
+      <label for="algoritmo">Algoritmo de busca</label>
+
+      <select id="algoritmo">
+        <option value="dijkstra">Dijkstra</option>
+        <option value="a-star">A*</option>
+      </select>
+    </div>
+
+    <button
+      type="button"
+      id="calcularTrajetoria"
+      class="botaoCalcular"
+      disabled
+    >
+      Calcular trajetória
+    </button>
+
+    <p id="statusTrajetoria" role="status" aria-live="polite">
+      Aguardando seleção dos pontos.
+    </p>
+
+  </section>
+
+  <!-- Cartão de resultados -->
+  <section class="cartaoResultados" id="resultadosTrajetoria">
+
+    <div class="menuTitulo">
+      <div>
+        <span class="subtitulo">ANÁLISE DO PERCURSO</span>
+        <h2>Resultados da trajetória</h2>
+      </div>
+
+      <button
+        class="fecharMenu"
+        id="minimizarResultados"
+        title="Minimizar resultados"
+      >
+        −
+      </button>
+    </div>
+
+    <div class="resultadosGrid">
+
+      <div class="resultadoItem">
+        <span>Comprimento</span>
+        <strong id="comprimentoTrajetoria">—</strong>
+      </div>
+
+      <div class="resultadoItem">
+        <span>Inclinação máxima</span>
+        <strong id="inclinacaoMaxima">—</strong>
+      </div>
+
+      <div class="resultadoItem">
+        <span>Energia estimada</span>
+        <strong id="energiaEstimada">—</strong>
+      </div>
+
+      <div class="resultadoItem">
+        <span>Nós expandidos</span>
+        <strong id="nosExpandidos">—</strong>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- Controles auxiliares do mapa -->
   <div class="hud" id="hud" aria-hidden="true"></div>
-  <div id="map"></div>
+
+  <div class="area">
+    <button type="button" id="sel">Selecionar área</button>
+    <button type="button" id="tudo" disabled>Mostrar mapa completo</button>
+    <p id="info"></p>
+  </div>
+
+  <!-- Campos de compatibilidade com a primeira versão do JS.
+       Serão substituídos pela seleção direta no mapa na próxima etapa. -->
+  <div hidden>
+    <input type="text" id="pontoInicial">
+    <input type="text" id="pontoFinal">
+  </div>
+
+  <!-- Mensagens de erro -->
+  <div id="erro" role="alert"></div>
+
+  <!-- JavaScript de interação -->
+  
+  <script type="module" src="./js/main.js"></script>
+
 </body>
 </html>

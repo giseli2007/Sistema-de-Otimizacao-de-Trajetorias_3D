@@ -27,3 +27,4 @@ export function iniciarControles(map, terreno) {
     terreno.definirExagero(+ex.value);
   };
 }
+
