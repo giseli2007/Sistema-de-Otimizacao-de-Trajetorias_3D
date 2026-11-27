@@ -6,124 +6,219 @@ Status: implementado.
 """
 
 import math
-from typing import Callable
 
-from calclib.diff import declividade_celula
 from calclib.grid import Grid2D
-from terreno.base import TerrenoBase, lonlat_para_metros, metros_para_lonlat
-
-FuncaoRelevo = Callable[[float, float], float] # Callable é um tipo que representa uma função que recebe dois floats (x, y) e retorna um float (z).
+from terreno.grid_terrain import GridTerrain
 
 
-class TerrenoSintetico(TerrenoBase):
-    """Terreno definido por uma função analítica z = f(x, y) em metros locais."""
+def _validar_parametros(
+    linhas: int,
+    colunas: int,
+    dx: float,
+    dy: float,
+) -> None:
 
-    def __init__(
-        self,
-        funcao_z: FuncaoRelevo,
-        lon_origem: float = -63.90,
-        lat_origem: float = -8.76,
-    ) -> None:
-        """Inicializa um terreno sintético georreferenciado.
+    if not isinstance(linhas, int) or isinstance(linhas, bool) or linhas < 2:
+        raise ValueError("O terreno precisa ter pelo menos 2 linhas.")
 
-        Args:
-            funcao_z: Função f(x, y) que recebe metros locais e retorna altitude z (m).
-            lon_origem: Longitude de referência para (x=0, y=0).
-            lat_origem: Latitude de referência para (x=0, y=0).
-        """
-        self.funcao_z = funcao_z
-        self.lon_origem = float(lon_origem)
-        self.lat_origem = float(lat_origem)
+    if not isinstance(colunas, int) or isinstance(colunas, bool) or colunas < 2:
+        raise ValueError("O terreno precisa ter pelo menos 2 colunas.")
 
-    def altitude(self, lon: float, lat: float) -> float:
-        """Calcula a altitude exata f(x, y) na coordenada geográfica (lon, lat)."""
-        x, y = lonlat_para_metros(lon, lat, self.lon_origem, self.lat_origem)
-        return float(self.funcao_z(x, y))
+    if not math.isfinite(dx) or dx <= 0:
+        raise ValueError("A resolução dx deve ser positiva e finita.")
 
-    def declividade(self, lon: float, lat: float, unidade: str = "razao") -> float:
-        """Estima a declividade local em (lon, lat) usando diferenças finitas."""
-        passo_m = 1.0
-        lon_min, lat_min = metros_para_lonlat(-passo_m, -passo_m, lon, lat)
-        lon_max, lat_max = metros_para_lonlat(passo_m, passo_m, lon, lat)
-        subgrade = self.grade_area(lon_min, lat_min, lon_max, lat_max, resolucao_m=passo_m)
-        # O ponto (lon, lat) fica exatamente no centro (1, 1) da grade 3x3
-        return declividade_celula(subgrade, 1, 1, unidade=unidade)
+    if not math.isfinite(dy) or dy <= 0:
+        raise ValueError("A resolução dy deve ser positiva e finita.")
 
-    def grade_area(
-        self,
-        lon_min: float,
-        lat_min: float,
-        lon_max: float,
-        lat_max: float,
-        resolucao_m: float | None = None,
-    ) -> Grid2D:
-        """Gera uma Grid2D regular em metros avaliando f(x, y) em cada nó."""
-        largura_m, altura_m = lonlat_para_metros(lon_max, lat_max, lon_min, lat_min)
-        if largura_m <= 0 or altura_m <= 0:
-            raise ValueError("Os limites máximos devem ser maiores que os limites mínimos.")
 
-        dx = resolucao_m if resolucao_m is not None else 10.0
-        dy = dx
+def _criar_terreno(
+    dados: list[list[float]],
+    dx: float,
+    dy: float,
+    origem_lon: float,
+    origem_lat: float,
+) -> GridTerrain:
 
-        num_cols = max(2, int(round(largura_m / dx)) + 1)
-        num_linhas = max(2, int(round(altura_m / dy)) + 1)
+    grade = Grid2D(
+        dados=dados,
+        dx=dx,
+        dy=dy,
+    )
 
-        dados: list[list[float]] = []
-        for i in range(num_linhas):
-            y_local = i * dy
-            linha: list[float] = []
-            for j in range(num_cols):
-                x_local = j * dx
-                lon_p, lat_p = metros_para_lonlat(x_local, y_local, lon_min, lat_min)
-                linha.append(self.altitude(lon_p, lat_p))
-            dados.append(linha)
+    return GridTerrain(
+        grid=grade,
+        origem_lon=origem_lon,
+        origem_lat=origem_lat,
+    )
 
-        return Grid2D(dados=dados, dx=dx, dy=dy, origem_x=0.0, origem_y=0.0)
 
-    # --- Construtores prontos para cenários de teste ---
+def criar_plano(
+    linhas: int = 50,
+    colunas: int = 50,
+    dx: float = 10.0,
+    dy: float = 10.0,
+    altitude: float = 100.0,
+    origem_lon: float = 0.0,
+    origem_lat: float = 0.0,
+) -> GridTerrain:
 
-    @classmethod
-    def plano(
-        cls,
-        cota: float = 100.0,
-        lon_origem: float = -63.90,
-        lat_origem: float = -8.76,
-    ) -> "TerrenoSintetico":
-        """Cria um terreno perfeitamente plano na altitude 'cota' (em metros)."""
-        return cls(lambda x, y: cota, lon_origem=lon_origem, lat_origem=lat_origem)
+    _validar_parametros(linhas, colunas, dx, dy)
 
-    @classmethod
-    def rampa(
-        cls,
-        cota_inicial: float = 50.0,
-        declividade_x: float = 0.10,
-        declividade_y: float = 0.0,
-        lon_origem: float = -63.90,
-        lat_origem: float = -8.76,
-    ) -> "TerrenoSintetico":
-        """Cria um plano inclinado z = z0 + declividade_x * x + declividade_y * y."""
-        return cls(
-            lambda x, y: cota_inicial + declividade_x * x + declividade_y * y,
-            lon_origem=lon_origem,
-            lat_origem=lat_origem,
-        )
+    if not math.isfinite(altitude):
+        raise ValueError("A altitude deve ser um número finito.")
 
-    @classmethod
-    def colina_gaussiana(
-        cls,
-        cota_base: float = 50.0,
-        altura_pico: float = 80.0,
-        centro_x: float = 250.0,
-        centro_y: float = 250.0,
-        raio_dispersao: float = 70.0,
-        lon_origem: float = -63.90,
-        lat_origem: float = -8.76,
-    ) -> "TerrenoSintetico":
-        """Cria uma colina suave (gaussiana) centrada em (centro_x, centro_y) metros."""
-        dois_sigma2 = 2.0 * (raio_dispersao ** 2)
+    dados = [
+        [altitude for _ in range(colunas)]
+        for _ in range(linhas)
+    ]
 
-        def _f(x: float, y: float) -> float:
-            dist2 = (x - centro_x) ** 2 + (y - centro_y) ** 2
-            return cota_base + altura_pico * math.exp(-dist2 / dois_sigma2)
+    return _criar_terreno(
+        dados, dx, dy, origem_lon, origem_lat
+    )
 
-        return cls(_f, lon_origem=lon_origem, lat_origem=lat_origem)
+
+def criar_rampa(
+    linhas: int = 50,
+    colunas: int = 50,
+    dx: float = 10.0,
+    dy: float = 10.0,
+    altitude_base: float = 100.0,
+    inclinacao: float = 0.10,
+    origem_lon: float = 0.0,
+    origem_lat: float = 0.0,
+) -> GridTerrain:
+
+    _validar_parametros(linhas, colunas, dx, dy)
+
+    if not math.isfinite(altitude_base) or not math.isfinite(inclinacao):
+        raise ValueError("A altitude e a inclinação devem ser finitas.")
+
+    dados = []
+
+    for i in range(linhas):
+        linha = []
+
+        for j in range(colunas):
+            x = j * dx
+            altitude = altitude_base + inclinacao * x
+            linha.append(altitude)
+
+        dados.append(linha)
+
+    return _criar_terreno(
+        dados, dx, dy, origem_lon, origem_lat
+    )
+
+
+def criar_colina(
+    linhas: int = 50,
+    colunas: int = 50,
+    dx: float = 10.0,
+    dy: float = 10.0,
+    altitude_base: float = 100.0,
+    altura: float = 50.0,
+    origem_lon: float = 0.0,
+    origem_lat: float = 0.0,
+) -> GridTerrain:
+
+    _validar_parametros(linhas, colunas, dx, dy)
+
+    if not math.isfinite(altitude_base) or not math.isfinite(altura):
+        raise ValueError("A altitude e a altura devem ser finitas.")
+
+    centro_x = (colunas - 1) * dx / 2
+    centro_y = (linhas - 1) * dy / 2
+
+    raio = min(centro_x, centro_y) / 2
+
+    dados = []
+
+    for i in range(linhas):
+        linha = []
+
+        for j in range(colunas):
+            x = j * dx
+            y = i * dy
+
+            distancia = math.sqrt(
+                (x - centro_x) ** 2 + (y - centro_y) ** 2
+            )
+
+            elevacao = altura * math.exp(
+                -(distancia ** 2) / (2 * raio ** 2)
+            )
+
+            linha.append(altitude_base + elevacao)
+
+        dados.append(linha)
+
+    return _criar_terreno(
+        dados, dx, dy, origem_lon, origem_lat
+    )
+
+
+def criar_vale(
+    linhas: int = 50,
+    colunas: int = 50,
+    dx: float = 10.0,
+    dy: float = 10.0,
+    altitude_base: float = 100.0,
+    profundidade: float = 40.0,
+    origem_lon: float = 0.0,
+    origem_lat: float = 0.0,
+) -> GridTerrain:
+
+    if not math.isfinite(profundidade) or profundidade < 0:
+        raise ValueError("A profundidade deve ser finita e não negativa.")
+
+    return criar_colina(
+        linhas=linhas,
+        colunas=colunas,
+        dx=dx,
+        dy=dy,
+        altitude_base=altitude_base,
+        altura=-profundidade,
+        origem_lon=origem_lon,
+        origem_lat=origem_lat,
+    )
+
+
+def criar_montanhoso(
+    linhas: int = 50,
+    colunas: int = 50,
+    dx: float = 10.0,
+    dy: float = 10.0,
+    altitude_base: float = 100.0,
+    amplitude: float = 30.0,
+    origem_lon: float = 0.0,
+    origem_lat: float = 0.0,
+) -> GridTerrain:
+
+    _validar_parametros(linhas, colunas, dx, dy)
+
+    if not math.isfinite(altitude_base) or not math.isfinite(amplitude):
+        raise ValueError("A altitude e a amplitude devem ser finitas.")
+
+    dados = []
+
+    for i in range(linhas):
+        linha = []
+
+        for j in range(colunas):
+            x = j * dx
+            y = i * dy
+
+            variacao = (
+                math.sin(x / 40) * math.cos(y / 35)
+                + 0.5 * math.sin(x / 15)
+                + 0.3 * math.cos(y / 20)
+            )
+
+            altitude = altitude_base + amplitude * variacao
+            linha.append(altitude)
+
+        dados.append(linha)
+
+    return _criar_terreno(
+        dados, dx, dy, origem_lon, origem_lat
+    )
